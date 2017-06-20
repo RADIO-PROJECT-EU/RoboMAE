@@ -1,3 +1,10 @@
+Version 2.2, June 2017
+
+Katerina Zamani implemented the laser scanner annotation tool for
+RoboMAE, which allows annotations about tracking the same moving
+object across frames and separating point clusters of different objects.
+
+
 Version 2.1, April 2017
 
 Dimitris Sgouropoulos fixed several bugs. Video and audio annotation
