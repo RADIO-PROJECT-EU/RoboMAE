@@ -425,13 +425,29 @@ class LaserWidget(PlotCanvas):
 
             #if not exists:
             csv_writer.writerow(self.laserCr.headlines)
+            rowList = []
 
             for box in self.rectangles.boxes:
                 timestamp = self.laserCr.time_increment*box.frameCount
                 rect = box.rectangle
 
                 row = [timestamp, box.uId, rect.get_x(), rect.get_y(), rect.get_width(), rect.get_height(), box.condition, box.data]
+                rowList.append(row)
+
+            sortedlist = sorted(rowList, key=lambda r: float(r[0]), reverse=False)
+
+
+            prev_time = -1.0
+            frameIndex = 0
+            for row in sortedlist:
+                if float(row[0]) > prev_time:
+                    fid = self.laserCr.frames_array[frameIndex]
+                    frameIndex = frameIndex + 1
+                    prev_time = float(row[0])
+
+                row.append(fid)
                 csv_writer.writerow(row)
+
 
         print ("Csv for scanner written at: ", self.laserCr.csv_file) 
 
@@ -452,6 +468,46 @@ class LaserWidget(PlotCanvas):
         except Exception as ex:
             print ('Error ',ex)
             raise Exception
+
+
+    #rewrite a written csv by sorting it and inserting the frame_id information
+    def rewriteCSV(self):
+        output_file = None
+
+        try:
+            output_file = self.laserCr.csv_file.split(".csv")[0]+"_RW.csv"
+
+            with open(self.laserCr.csv_file, 'r') as rfile, open(output_file, 'w+') as wfile:
+                csv_reader = csv.reader(rfile, delimiter='\t')
+                csv_reader.next()
+
+                #sort the csv by the timestamp
+                sortedlist = sorted(csv_reader, key=lambda row: float(row[0]), reverse=False)
+
+                csv_writer = csv.writer(wfile, delimiter='\t')
+
+                csv_writer.writerow(self.laserCr.headlines)
+
+                prev_time = -1.0
+                frameIndex = 0
+                for row in sortedlist:
+                    try:
+                        if float(row[0]) > prev_time:
+                            fid = self.laserCr.frames_array[frameIndex]
+                            frameIndex = frameIndex + 1
+                            prev_time = float(row[0])
+                    except ValueError:
+                        continue
+
+                    rowNew = [row[0],row[1], row[2], row[3], row[4], row[5], row[6], row[7], fid]
+                    csv_writer.writerow(rowNew)
+
+        except Exception as ex:
+            print ('Error ',ex)
+            raise Exception 
+
+        print ("Csv for scanner rewritten at: ",output_file)
+
 
     #Creates a <BoundingBox> with its information, by taking into account the information of a csv row
     def createBox(self, row, headlines):

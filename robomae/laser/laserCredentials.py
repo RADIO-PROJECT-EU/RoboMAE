@@ -12,6 +12,7 @@ class LaserCredentials(object):
         self.walls = []             #points that represent the walls 
         self.boxHandler = None      #<BBoxHandler> which contains the bounding boxes and the data
         self.time_increment = 0.0   #the time of between two scans 
+        self.frames_array = []      #array with the sequence IDs of the frames (only the frames that contain the raw_data) in the rosbag
         self.raw_data = []          #set of points <LaserAnnotation> for each scan (the walls are not included)
         self.status = None          #defines the state of the Laser widget. Possible options: "Loaded"->the rosbag is loaded, "Play","Stop","Pause","Next","Previous","SetBox"->sets the previous boxes to the current frame/scan
         self.bag_file = ""
@@ -20,7 +21,7 @@ class LaserCredentials(object):
         self.counter = 0            #the number of the frame/scan
         self.myradius = 0.07        #the radious of a point in the plot -> ease the drawing of the rectangle and circles
 
-        self.headlines = ["Timestamp", "Rect_id", "Rect_x", "Rect_y", "Rect_W", "Rect_H", "Class", "Points"]
+        self.headlines = ["Timestamp", "Rect_id", "Rect_x", "Rect_y", "Rect_W", "Rect_H", "Class", "Points", "Frame_id"]
 
         self.basicLabel = []
         self.highLabel = []

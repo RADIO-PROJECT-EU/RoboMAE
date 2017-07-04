@@ -1109,6 +1109,25 @@ class VideoPlayer(QWidget):
         else:
             self.errorMessages(10)
 
+
+
+    def rewriteScanCsv(self):
+        global laser_info
+
+        if not laser_info.bag_file == "":
+            csvPath,_ =  QFileDialog.getOpenFileName(self, "Open Csv ", os.path.dirname(os.path.abspath(laser_info.csv_file)),"(*.csv)")
+            if csvPath and os.path.exists(csvPath):
+                try:
+                    laser_info.csv_file = csvPath
+                    self.laserScan.rewriteCSV()
+                except Exception:
+                    #TODO: check!
+                    self.errorMessages(12)
+            else:
+                self.errorMessages(11)
+        else:
+            self.errorMessages(10)
+
     #Open CSV file
     def openCsv(self):
         global framerate
@@ -1224,7 +1243,7 @@ class VideoPlayer(QWidget):
             msgBox.setText("You must select a *.csv file")
         elif index == 12:
             msgBox.setWindowTitle("Error in CSV")
-            msgBox.setText("Please check that the file has the appropriate format")
+            msgBox.setText("Error in handling the csv file. Please check that the file has the appropriate format and/or the suitable permissions")
 
         msgBox.resize(100,40)
         msgBox.exec_()
@@ -1420,6 +1439,7 @@ class MainWindow(QMainWindow):
         self.fileMenu.addAction(self.openCsvAct)
         self.fileMenu.addAction(self.saveCsvAct)
         self.fileMenu.addAction(self.openCsvScan)
+        self.fileMenu.addAction(self.rewriteCsvScan)
         self.fileMenu.addAction(self.saveCsvScan)
         self.fileMenu.addAction(self.quitAct)
         
@@ -1443,6 +1463,8 @@ class MainWindow(QMainWindow):
             statusTip="Save csv", triggered=self.saveCSV)
         self.openCsvScan = QAction("&Open scanner csv", self, shortcut="Ctrl+O",
             statusTip="Open csv", triggered=self.openScanCSV)
+        self.rewriteCsvScan = QAction("&Rewrite scanner csv", self, shortcut="Ctrl+R",
+            statusTip="Rewrite csv", triggered=self.rewriteScanCSV)
         self.saveCsvScan = QAction("&Save scanner csv", self, shortcut="Ctrl+L",
             statusTip="Save csv", triggered=self.saveScanCSV)
         self.quitAct = QAction("&Quit", self, shortcut="Ctrl+Q",
@@ -1475,6 +1497,9 @@ class MainWindow(QMainWindow):
 
     def openScanCSV(self):
         player.openScanCsv()
+
+    def rewriteScanCSV(self):
+        player.rewriteScanCsv()
 
     def saveScanCSV(self):
         player.laserScan.saveCSV()

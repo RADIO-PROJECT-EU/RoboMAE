@@ -33,6 +33,7 @@ def get_range_data(bag, input_topic, wall_limit):
         print 'There is no topic with the specified name :: ',input_topic
 
     points_buff = []
+    frames_array = []
     max_range = 0.0
     frame_count =0
     
@@ -63,11 +64,13 @@ def get_range_data(bag, input_topic, wall_limit):
             C = pol2cart(ranges, theta)
 
             points_buff.append(C)
+            if not(len(ranges) == 0):
+                frames_array.append(msg.header.seq)
 
         frame_count = frame_count + 1
 
         
-    return points_buff, wall_buff, msg.scan_time
+    return points_buff, wall_buff, msg.scan_time, frames_array
 
 
 def wall_extract(laser_ranges, range_limit):
@@ -99,11 +102,12 @@ def pol2cart(r,theta):
 def runMain(bag, laser_info):
     global frequency
 
-    points_buff, wall_buff, t = get_range_data(bag, laser_info.topic, laser_info.wall_limit)
+    points_buff, wall_buff, t, frames_array = get_range_data(bag, laser_info.topic, laser_info.wall_limit)
 
     convertPoints(points_buff, wall_buff, laser_info)
 
     laser_info.time_increment = t
+    laser_info.frames_array = frames_array
 
     auto = AutoScannerAnnotator(points_buff, laser_info.myradius)
     boxHandler = auto.cluster_procedure()
